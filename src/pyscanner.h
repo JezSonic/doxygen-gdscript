@@ -1,12 +1,12 @@
 /******************************************************************************
  *
- * 
+ *
  *
  * Copyright (C) 1997-2015 by Dimitri van Heesch.
  *
  * Permission to use, copy, modify, and distribute this software and its
- * documentation under the terms of the GNU General Public License is hereby 
- * granted. No representations are made about the suitability of this software 
+ * documentation under the terms of the GNU General Public License is hereby
+ * granted. No representations are made about the suitability of this software
  * for any purpose. It is provided "as is" without express or implied warranty.
  * See the GNU General Public License for more details.
  *
@@ -37,8 +37,8 @@ class PythonLanguageScanner : public ParserInterface
     virtual ~PythonLanguageScanner() {}
     void startTranslationUnit(const char *) {}
     void finishTranslationUnit() {}
-    void parseInput(const char * fileName, 
-                    const char *fileBuf, 
+    void parseInput(const char * fileName,
+                    const char *fileBuf,
                     Entry *root,
                     bool sameTranslationUnit,
                     QStrList &filesInSameTranslationUnit);
@@ -52,7 +52,7 @@ class PythonLanguageScanner : public ParserInterface
                    FileDef *fileDef=0,
                    int startLine=-1,
                    int endLine=-1,
-                   bool inlineFragment=FALSE,
+                   bool inlineFragment=TRUE,
                    MemberDef *memberDef=0,
                    bool showLineNumbers=TRUE,
                    Definition *searchCtx=0,
