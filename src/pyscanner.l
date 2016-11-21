@@ -163,6 +163,10 @@ static void newVariable()
   {
     current->stat = TRUE;
   }
+  if (current->name.left(3) == "var")
+  {
+    current->name = current->name.right(current->name.length()-3);
+  }
   newEntry();
 }
 
@@ -587,8 +591,7 @@ STARTDOCSYMS      "##"
 			g_packageCommentAllowed = FALSE;
 			BEGIN(VariableDec);
        	              }
-
-    ^{B}"const"{IDENTIFIER}/{B}"="[^=] { // Constant, treated now as a variable
+    ^{B}"var "{IDENTIFIER}/{B}"="[^=] { // Constant, treated now as a variable
                         if (g_search_count) REJECT;
       			g_indent=computeIndent(yytext);
       			current->section   = Entry::VARIABLE_SEC;
@@ -599,7 +602,18 @@ STARTDOCSYMS      "##"
 			g_packageCommentAllowed = FALSE;
 			BEGIN(VariableDec);
       		      }
-     {B}{IDENTIFIER}/({B},{B}{IDENTIFIER})*{B}")"*{B}"="[^=] { // list of variables, we cannot place the default value
+    ^{B}"const "{IDENTIFIER}/{B}"="[^=] { // Constant, treated now as a variable
+                        if (g_search_count) REJECT;
+      			g_indent=computeIndent(yytext);
+      			current->section   = Entry::VARIABLE_SEC;
+			current->name      = QCString(yytext).stripWhiteSpace();
+			current->fileName  = yyFileName;
+			current->startLine = yyLineNr;
+			current->bodyLine  = yyLineNr;
+			g_packageCommentAllowed = FALSE;
+			BEGIN(VariableDec);
+      		      }
+     {B}"var "{IDENTIFIER}/({B},{B}{IDENTIFIER})*{B}")"* { // list of variables, we cannot place the default value
                                                                // so we will skip it later on in a general rule
                                                                // Also note ")" this is to catch also (a,b). the "("
                                                                // is caught in the rule: [(], the ")" will be handled in [)]
@@ -613,6 +627,7 @@ STARTDOCSYMS      "##"
 			g_packageCommentAllowed = FALSE;
 			newVariable();
       		      }
+
      "'"	      { // start of a single quoted string
        		        g_stringContext=YY_START;
 		        g_copyString=0;
@@ -625,7 +640,7 @@ STARTDOCSYMS      "##"
 			g_packageCommentAllowed = FALSE;
                         BEGIN( DoubleQuoteString );
                       }
-    "@staticmethod"  {
+    "static"  {
        			gstat=TRUE;
       		      }
     {SCRIPTCOMMENT}   { // Unix type script comment
@@ -941,6 +956,9 @@ STARTDOCSYMS      "##"
 			      {
 				  current->type = "func";
 			      }
+			      if (current->stat == TRUE){
+                    current->type = "static func";
+			      }
 			      current->name = yytext;
 			      current->name = current->name.stripWhiteSpace();
 			      newFunction();
@@ -1205,7 +1223,7 @@ STARTDOCSYMS      "##"
                         //printf("====== VariableDec at line %d\n",yyLineNr);
                         g_start_init = TRUE;
 			current->initializer = yytext;
-			current->type = "var";
+			//current->type = "var";
 			current->initializer += " ";
                       }
    {B}                { // spaces
